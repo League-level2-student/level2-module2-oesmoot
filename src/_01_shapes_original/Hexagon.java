@@ -1,4 +1,4 @@
-package _03_shapes_original;
+package _01_shapes_original;
 
 import java.awt.Color;
 

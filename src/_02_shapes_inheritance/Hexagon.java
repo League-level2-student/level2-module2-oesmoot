@@ -1,4 +1,4 @@
-package _04_shapes_inheritance;
+package _02_shapes_inheritance;
 
 import java.awt.Color;
 

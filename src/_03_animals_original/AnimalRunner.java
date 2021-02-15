@@ -1,4 +1,4 @@
-package _05_animals_original;
+package _03_animals_original;
 
 /*
  * 1. Run the code and see the output.

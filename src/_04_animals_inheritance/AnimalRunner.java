@@ -1,4 +1,4 @@
-package _06_animals_inheritance;
+package _04_animals_inheritance;
 
 /*
  * 1. Similar to the shapes example, use inheritance to create classes 

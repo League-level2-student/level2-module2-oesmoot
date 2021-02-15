@@ -1,11 +1,11 @@
-package _05_animals_original;
+package _03_animals_original;
 
-public class Dog {
+public class Cat {
 	String name;
 	String furColor;
 	boolean isGirl;
 	
-	Dog(String name, String furColor, boolean isGirl) {
+	Cat(String name, String furColor, boolean isGirl) {
 		this.name=name;
 		this.furColor=furColor;
 		this.isGirl=isGirl;
