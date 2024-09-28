@@ -1,5 +1,7 @@
 package _08_LeagueSnake;
 
+import java.util.ArrayList;
+
 import processing.core.PApplet;
 
 public class LeagueSnake extends PApplet {
@@ -15,8 +17,10 @@ public class LeagueSnake extends PApplet {
     int foodX;
     int foodY;
     int direction = UP;
-    int foodEaten = 0;
+    int foodEaten = 1;
     int unpressableKey =DOWN;
+    ArrayList<Segment> tailPeices = new ArrayList<Segment>();
+    Boolean inMenu = true;
     /*
      * Setup methods
      * 
@@ -48,11 +52,19 @@ public class LeagueSnake extends PApplet {
 
     @Override
     public void draw() {
-        background(0,0,0);
-        move();
-        drawFood();
-        drawSnake();
-        eat();
+    	if(inMenu) {
+    		background(0,200,0);
+    		textSize(50);
+    		text("snake",150,100);
+    		rect(150,130,200,100);
+    	}
+    	else {
+    		background(0,0,0);
+            move();
+            drawFood();
+            drawSnake();
+            eat();
+    	}
     }
 
     void drawFood() {
@@ -65,11 +77,14 @@ public class LeagueSnake extends PApplet {
         // Draw the head of the snake followed by its tail
     	fill(0,255,0);
     	rect(head.x,head.y,10,10);
+    	manageTail();
     }
 
     void drawTail() {
         // Draw each segment of the tail
-        
+        for(int i = 0; i<tailPeices.size(); i++) {
+        	rect(tailPeices.get(i).x,tailPeices.get(i).y,10,10);
+        }
     }
 
     /*
@@ -79,6 +94,11 @@ public class LeagueSnake extends PApplet {
      */
 
     void manageTail() {
+    	checkTailCollision();
+    	drawTail();
+    	Segment newTailSeg = new Segment(head.x,head.y);
+    	tailPeices.add(newTailSeg);
+    	tailPeices.remove(0);
         // After drawing the tail, add a new segment at the "start" of the tail and
         // remove the one at the "end"
         // This produces the illusion of the snake tail moving.
@@ -87,6 +107,15 @@ public class LeagueSnake extends PApplet {
 
     void checkTailCollision() {
         // If the snake crosses its own tail, shrink the tail back to one segment
+    	for(int i=0;i<tailPeices.size();i++) {
+    	if(head.x == tailPeices.get(i).x&&head.y == tailPeices.get(i).y) {
+    		foodEaten = 1;
+    		tailPeices.removeAll(tailPeices);
+    		Segment newSeg = new Segment(head.x,head.y);
+    		tailPeices.add(newSeg);
+    	}
+    	}
+        	
         
     }
 
@@ -149,18 +178,14 @@ public class LeagueSnake extends PApplet {
         
         if (direction == UP) {
             head.y-=10;
-            checkBoundaries();
         } else if (direction == DOWN) {
             head.y+=10;
-            checkBoundaries();
         } else if (direction == LEFT) {
             head.x-=10;
-            checkBoundaries();
         } else if (direction == RIGHT) {
             head.x+=10;
-            checkBoundaries();
         }
-        
+        checkBoundaries();
     }
 
     void checkBoundaries() {
@@ -169,22 +194,24 @@ public class LeagueSnake extends PApplet {
         	head.x = 0;
         }
         else if(head.x<0) {
-        	head.x= 500;
+        	head.x= 490;
         }
         else if(head.y>500) {
         	head.y = 0;
         }
         else if(head.y<0) {
-        	head.y = 500;
+        	head.y = 490;
         }
     }
 
     void eat() {
         // When the snake eats the food, its tail should grow and more
         // food appear
-        if(head.x >= (foodX+=5) && head.x<= (foodX-=5)&& head.y <= (foodY-=5) && head.y >= (foodY+=5)) {
+        if(head.x== foodX&&head.y==foodY) {
         	foodEaten++;
-        	drawFood();
+        	dropFood();
+        	Segment seg = new Segment(head.x,head.y);
+        	tailPeices.add(seg);
         }
     }
 
