@@ -1,5 +1,6 @@
 package _08_LeagueSnake;
 
+import java.awt.Color;
 import java.util.ArrayList;
 
 import processing.core.PApplet;
@@ -21,6 +22,13 @@ public class LeagueSnake extends PApplet {
     int unpressableKey =DOWN;
     ArrayList<Segment> tailPeices = new ArrayList<Segment>();
     Boolean inMenu = true;
+    Boolean isDead = false;
+    boolean isLoading = false;
+    boolean isLoadingToGame = false;
+    boolean isLoadingToJuicer = false;
+    Boolean inJuicer = false;
+    int progress = 0;
+    int score = 0;
     /*
      * Setup methods
      * 
@@ -53,17 +61,101 @@ public class LeagueSnake extends PApplet {
     @Override
     public void draw() {
     	if(inMenu) {
+    		fill(255,255,255);
     		background(0,200,0);
     		textSize(50);
     		text("snake",150,100);
     		rect(150,130,200,100);
+    		rect(150,280,200,100);
+    		fill(0,0,0);
+    		text("play",175,200);
+    		text("juicer",175,350);
+    		if(mousePressed) {
+    			if(mouseX>=150&&mouseX<=350&&mouseY>=130&&mouseY<=230) {
+    				inMenu = false;
+    				isLoadingToGame = true;
+    			}
+    			else if(mouseX>=150&&mouseX<=350&&mouseY>=280&&mouseY<=380) {
+    				inMenu=false;
+    				isLoadingToJuicer = true;
+    			}
+    		}
     	}
+    	else if(isDead) {
+    		fill(255,255,255);
+    		background(200,0,0);
+    		textSize(50);
+    		text("you suck",150,100);
+    		rect(150,130,200,100);
+    		rect(150,280,200,100);
+    		fill(0,0,0);
+    		text("menu",175,200);
+    		text("again",175,350);
+    		if(mousePressed) {
+    			if(mouseX>=150&&mouseX<=350&&mouseY>=130&&mouseY<=230) {
+    				isLoading = true;
+    				isDead = false;
+    			}
+    		else if(mouseX>=150&&mouseX<=350&&mouseY>=280&&mouseY<=380) {
+    			isDead = false;
+    			isLoadingToGame = true;
+    		}
+    		}
+    	}
+    	else if(isLoading) {
+			background(0,0,200);
+			fill(255,255,255);
+			textSize(50);
+			text("loading",150,100);
+			progress++;
+			if(progress>=10) {
+				isLoading = false;
+				inMenu = true;
+				progress = 0;
+			}
+    	}
+		else if(isLoadingToGame) {
+			background(0,0,200);
+			fill(255,255,255);
+			textSize(50);
+			text("loading",150,100);
+			progress++;
+			if(progress>=50) {
+				isLoadingToGame = false;
+				progress = 0;
+		}
+		}
+		else if(isLoadingToJuicer) {
+			background(0,0,200);
+			fill(255,255,255);
+			textSize(50);
+			text("loading",150,100);
+			progress++;
+			if(progress>=10) {
+				isLoadingToJuicer = false;
+				inJuicer = true;
+				progress = 0;
+		}
+		}
+		else if(inJuicer) {
+			background(0,200,0);
+			fill(255,255,255);
+			textSize(50);
+			text("add difficulty",100,100);
+			rect(150,130,200,100);
+			rect(150,280,200,100);
+			fill(0,0,0);
+			text("faster",175,200);
+			text("back",175,350);
+		}
     	else {
     		background(0,0,0);
             move();
             drawFood();
             drawSnake();
             eat();
+            textSize(20);
+            text("score: " + String.valueOf(score),10,20);
     	}
     }
 
@@ -113,6 +205,8 @@ public class LeagueSnake extends PApplet {
     		tailPeices.removeAll(tailPeices);
     		Segment newSeg = new Segment(head.x,head.y);
     		tailPeices.add(newSeg);
+    		isDead = true;
+    		score = 0;
     	}
     	}
         	
@@ -212,6 +306,7 @@ public class LeagueSnake extends PApplet {
         	dropFood();
         	Segment seg = new Segment(head.x,head.y);
         	tailPeices.add(seg);
+        	score++;
         }
     }
 
