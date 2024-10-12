@@ -29,6 +29,10 @@ public class LeagueSnake extends PApplet {
     Boolean inJuicer = false;
     int progress = 0;
     int score = 0;
+    boolean isBorders = false;
+    String borderText = "borders(off)";
+    String sizeText = "bigger(off)";
+    boolean isBig = false;
     /*
      * Setup methods
      * 
@@ -41,7 +45,7 @@ public class LeagueSnake extends PApplet {
 
     @Override
     public void setup() {
-        head = new Segment(250,250);
+        head = new Segment(240,240);
         frameRate(20);
         dropFood();
     }
@@ -91,6 +95,8 @@ public class LeagueSnake extends PApplet {
     		fill(0,0,0);
     		text("menu",175,200);
     		text("again",175,350);
+    		head.x = 250;
+    		head.y = 250;
     		if(mousePressed) {
     			if(mouseX>=150&&mouseX<=350&&mouseY>=130&&mouseY<=230) {
     				isLoading = true;
@@ -144,9 +150,43 @@ public class LeagueSnake extends PApplet {
 			text("add difficulty",100,100);
 			rect(150,130,200,100);
 			rect(150,280,200,100);
+			rect(10,10,65,50);
 			fill(0,0,0);
-			text("faster",175,200);
-			text("back",175,350);
+			text("<-",7,50);
+			textSize(30);
+			text(borderText,170,200);
+			text(sizeText,175,350);
+			if(mousePressed) {
+				if(mouseX>=150&&mouseX<=350&&mouseY>=130&&mouseY<=230) {
+					inJuicer = false;
+					isLoadingToJuicer = true;
+					if(!isBorders) {
+						isBorders = true;
+						borderText = "borders(on)";
+					}
+					else if(isBorders) {
+						isBorders = false;
+						borderText = "borders(off)";
+					}
+				}
+				else if(mouseX>=150&&mouseX<=350&&mouseY>=280&&mouseY<=380) {
+					inJuicer = false;
+					isLoadingToJuicer = true;
+					if(!isBig) {
+						isBig = true;
+						sizeText = "bigger(on)";
+					}
+					else if(isBig) {
+						isBig = false;
+						sizeText = "bigger(off)";
+					}
+				}
+				else if(mouseX>=10&&mouseX<=75&&mouseY>=10&&mouseY<=60) {
+					inJuicer = false;
+					isLoading = true;
+				}
+				
+			}
 		}
     	else {
     		background(0,0,0);
@@ -156,6 +196,12 @@ public class LeagueSnake extends PApplet {
             eat();
             textSize(20);
             text("score: " + String.valueOf(score),10,20);
+            if(!isBig) {
+            	frameRate(20);
+            }
+            else if(isBig) {
+            	frameRate(15);
+            }
     	}
     }
 
@@ -168,14 +214,24 @@ public class LeagueSnake extends PApplet {
     void drawSnake() {
         // Draw the head of the snake followed by its tail
     	fill(0,255,0);
-    	rect(head.x,head.y,10,10);
+    	if(isBig) {
+    		rect(head.x,head.y,20,20);
+    	}
+    	else {
+    		rect(head.x,head.y,10,10);
+    	}
     	manageTail();
     }
 
     void drawTail() {
         // Draw each segment of the tail
         for(int i = 0; i<tailPeices.size(); i++) {
-        	rect(tailPeices.get(i).x,tailPeices.get(i).y,10,10);
+        	if(isBig) {
+        		rect(tailPeices.get(i).x,tailPeices.get(i).y,20,20);
+        	}
+        	else {
+        		rect(tailPeices.get(i).x,tailPeices.get(i).y,10,10);
+        	}
         }
     }
 
@@ -271,13 +327,33 @@ public class LeagueSnake extends PApplet {
 
         
         if (direction == UP) {
-            head.y-=10;
+        	if(isBig) {
+        		head.y-=20;
+        	}
+        	else {
+        		head.y-=10;
+        	}
         } else if (direction == DOWN) {
-            head.y+=10;
+        	if(isBig) {
+        		head.y+=20;
+        	}
+        	else {
+        		head.y+=10;
+        	}
         } else if (direction == LEFT) {
-            head.x-=10;
+        	if(isBig) {
+        		head.x-=20;
+        	}
+        	else {
+        		head.x-=10;
+        	}
         } else if (direction == RIGHT) {
-            head.x+=10;
+        	if(isBig) {
+        		head.x+=20;
+        	}
+        	else {
+        		head.x+=10;
+        	}
         }
         checkBoundaries();
     }
@@ -285,29 +361,74 @@ public class LeagueSnake extends PApplet {
     void checkBoundaries() {
         // If the snake leaves the frame, make it reappear on the other side
         if(head.x>500) {
-        	head.x = 0;
+        	if(isBorders) {
+        		isDead = true;
+        	}
+        	else {
+        		head.x = 0;
+        	}
         }
         else if(head.x<0) {
-        	head.x= 490;
+        	if(isBorders) {
+        		isDead = true;
+        	}
+        	else {
+        		if(isBig) {
+        			head.x = 480;
+        		}
+        		else {
+        			head.x= 490;
+        		}
+        	}
         }
         else if(head.y>500) {
-        	head.y = 0;
+        	if(isBorders) {
+        		isDead = true;
+        	}
+        	else {
+        		head.y = 0;
+        	}
         }
         else if(head.y<0) {
-        	head.y = 490;
+        	if(isBorders) {
+        		isDead = true;
+        	}
+        	else {
+        		if(isBig) {
+        			head.y=480;
+        		}
+        		else {
+        			head.y = 490;
+        		}
+        	}
         }
     }
 
     void eat() {
         // When the snake eats the food, its tail should grow and more
         // food appear
-        if(head.x== foodX&&head.y==foodY) {
-        	foodEaten++;
-        	dropFood();
-        	Segment seg = new Segment(head.x,head.y);
-        	tailPeices.add(seg);
-        	score++;
-        }
+    	if(isBig) {
+    		if(head.x== foodX&&head.y==foodY
+    				||head.x == (foodX-10)&&head.y == foodY
+    				||head.x == (foodX-10)&&head.y == (foodY-10)
+    				||head.x == foodX&&head.y==(foodY-10)) {
+            	foodEaten++;
+            	dropFood();
+            	Segment seg = new Segment(head.x,head.y);
+            	tailPeices.add(seg);
+            	score++;
+            }
+    	
+    	}
+    	else {
+    		if(head.x== foodX&&head.y==foodY) {
+            	foodEaten++;
+            	dropFood();
+            	Segment seg = new Segment(head.x,head.y);
+            	tailPeices.add(seg);
+            	score++;
+            }
+    	}
     }
 
     static public void main(String[] passedArgs) {
