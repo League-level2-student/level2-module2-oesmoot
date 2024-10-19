@@ -17,6 +17,13 @@ public class LeagueSnake extends PApplet {
     Segment head;
     int foodX;
     int foodY;
+    int wallXa;
+    int wallYa;
+    int wallXb;
+    int wallYb;
+    int wallXc;
+    int wallYc;
+    ArrayList<Wall> walls = new ArrayList<Wall>();
     int direction = UP;
     int foodEaten = 1;
     int unpressableKey =DOWN;
@@ -32,7 +39,11 @@ public class LeagueSnake extends PApplet {
     boolean isBorders = false;
     String borderText = "borders(off)";
     String sizeText = "bigger(off)";
+    String speedText = "faster(off)";
+    String wallText = "walls(off)";
     boolean isBig = false;
+    boolean isFast = false;
+    boolean isWalls = false;
     /*
      * Setup methods
      * 
@@ -48,12 +59,25 @@ public class LeagueSnake extends PApplet {
         head = new Segment(240,240);
         frameRate(20);
         dropFood();
+        makeWalls();
     }
 
     void dropFood() {
         // Set the food in a new random location
     	foodX = ((int)random(50)*10);
     	foodY = ((int)random(50)*10);
+    	
+    }
+    void makeWalls() {
+    	wallXa = ((int)random(50)*10);
+    	wallXb = ((int)random(50)*10);
+    	wallXc = ((int)random(50)*10);
+    	wallYa = ((int)random(50)*10);
+    	wallYb = ((int)random(50)*10);
+    	wallYc = ((int)random(50)*10);
+    	walls.add(new Wall());
+    	walls.add(new Wall());
+    	walls.add(new Wall());
     }
 
     /*
@@ -147,17 +171,21 @@ public class LeagueSnake extends PApplet {
 			background(0,200,0);
 			fill(255,255,255);
 			textSize(50);
-			text("add difficulty",100,100);
-			rect(150,130,200,100);
-			rect(150,280,200,100);
+			text("add difficulty",100,50);
+			rect(150,60,200,100);
+			rect(150,165,200,100);
+			rect(150,270,200,100);
+			rect(150,375,200,100);
 			rect(10,10,65,50);
 			fill(0,0,0);
 			text("<-",7,50);
 			textSize(30);
-			text(borderText,170,200);
-			text(sizeText,175,350);
+			text(borderText,170,120);
+			text(sizeText,175,225);
+			text(speedText,175,330);
+			text(wallText,175,435);
 			if(mousePressed) {
-				if(mouseX>=150&&mouseX<=350&&mouseY>=130&&mouseY<=230) {
+				if(mouseX>=150&&mouseX<=350&&mouseY>=60&&mouseY<=160) {
 					inJuicer = false;
 					isLoadingToJuicer = true;
 					if(!isBorders) {
@@ -169,7 +197,7 @@ public class LeagueSnake extends PApplet {
 						borderText = "borders(off)";
 					}
 				}
-				else if(mouseX>=150&&mouseX<=350&&mouseY>=280&&mouseY<=380) {
+				else if(mouseX>=150&&mouseX<=350&&mouseY>=165&&mouseY<=265) {
 					inJuicer = false;
 					isLoadingToJuicer = true;
 					if(!isBig) {
@@ -179,6 +207,30 @@ public class LeagueSnake extends PApplet {
 					else if(isBig) {
 						isBig = false;
 						sizeText = "bigger(off)";
+					}
+				}
+				else if(mouseX>=150&&mouseX<=350&&mouseY>=270&&mouseY<=370) {
+					inJuicer = false;
+					isLoadingToJuicer = true;
+					if(!isFast) {
+						isFast = true;
+						speedText = "faster(on)";
+					}
+					else if(isFast) {
+						isFast = false;
+						speedText = "faster(off)";
+					}
+				}
+				else if(mouseX>=150&&mouseX<=350&&mouseY>=375&&mouseY<=475) {
+					inJuicer = false;
+					isLoadingToJuicer = true;
+					if(!isWalls) {
+						isWalls = true;
+						wallText = "walls(on)";
+					}
+					else if(isWalls) {
+						isWalls = false;
+						wallText = "walls(off)";
 					}
 				}
 				else if(mouseX>=10&&mouseX<=75&&mouseY>=10&&mouseY<=60) {
@@ -197,10 +249,26 @@ public class LeagueSnake extends PApplet {
             textSize(20);
             text("score: " + String.valueOf(score),10,20);
             if(!isBig) {
-            	frameRate(20);
+            	if(!isFast) {
+            		frameRate(20);
+            	}
+            	else if(isFast) {
+            		frameRate(40);
+            	}
             }
             else if(isBig) {
-            	frameRate(15);
+            	if(!isFast) {
+            		frameRate(10);
+            	}
+            	else if(isFast) {
+            		frameRate(20);
+            	}
+            }
+            if(isWalls) {
+            	drawWalls();
+            	checkWallCollisionA();
+            	checkWallCollisionB();
+            	checkWallCollisionC();
             }
     	}
     }
@@ -209,6 +277,16 @@ public class LeagueSnake extends PApplet {
         // Draw the food
     	fill(255,0,0);
         rect(foodX,foodY,10,10);
+        
+    }
+    void drawWalls() {
+    	fill(0,0,255);
+    	for(Wall w:walls) {
+    		rect(w.x,w.y,10,10);
+    	}
+    	rect(wallXa,wallYa,10,10);
+    	rect(wallXb,wallYb,10,10);
+    	rect(wallXc,wallYc,10,10);
     }
 
     void drawSnake() {
@@ -357,12 +435,19 @@ public class LeagueSnake extends PApplet {
         }
         checkBoundaries();
     }
-
+    void death() {
+    	foodEaten = 1;
+		tailPeices.removeAll(tailPeices);
+		Segment newSeg = new Segment(head.x,head.y);
+		tailPeices.add(newSeg);
+		isDead = true;
+		score = 0;
+    }
     void checkBoundaries() {
         // If the snake leaves the frame, make it reappear on the other side
         if(head.x>500) {
         	if(isBorders) {
-        		isDead = true;
+        		death();
         	}
         	else {
         		head.x = 0;
@@ -370,7 +455,7 @@ public class LeagueSnake extends PApplet {
         }
         else if(head.x<0) {
         	if(isBorders) {
-        		isDead = true;
+        		death();
         	}
         	else {
         		if(isBig) {
@@ -383,7 +468,7 @@ public class LeagueSnake extends PApplet {
         }
         else if(head.y>500) {
         	if(isBorders) {
-        		isDead = true;
+        		death();
         	}
         	else {
         		head.y = 0;
@@ -391,7 +476,7 @@ public class LeagueSnake extends PApplet {
         }
         else if(head.y<0) {
         	if(isBorders) {
-        		isDead = true;
+        		death();
         	}
         	else {
         		if(isBig) {
@@ -427,6 +512,54 @@ public class LeagueSnake extends PApplet {
             	Segment seg = new Segment(head.x,head.y);
             	tailPeices.add(seg);
             	score++;
+            }
+    	}
+    }
+    void checkWallCollisionA() {
+    	if(isBig) {
+    		if(head.x== wallXa&&head.y==wallYa
+    				||head.x == (wallXa-10)&&head.y == wallYa
+    				||head.x == (wallXa-10)&&head.y == (wallYa-10)
+    				||head.x == wallXa&&head.y==(wallYa-10)) {
+            		death();
+            }
+    	
+    	}
+    	else {
+    		if(head.x== wallXa&&head.y==wallYa) {
+            	death();
+            }
+    	}
+    }
+    void checkWallCollisionB() {
+    	if(isBig) {
+    		if(head.x== wallXb&&head.y==wallYb
+    				||head.x == (wallXb-10)&&head.y == wallYb
+    				||head.x == (wallXb-10)&&head.y == (wallYb-10)
+    				||head.x == wallXb&&head.y==(wallYb-10)) {
+            		death();
+            }
+    	
+    	}
+    	else {
+    		if(head.x== wallXb&&head.y==wallYb) {
+            	death();
+            }
+    	}
+    }
+    void checkWallCollisionC() {
+    	if(isBig) {
+    		if(head.x== wallXc&&head.y==wallYc
+    				||head.x == (wallXc-10)&&head.y == wallYc
+    				||head.x == (wallXc-10)&&head.y == (wallYc-10)
+    				||head.x == wallXc&&head.y==(wallYc-10)) {
+            		death();
+            }
+    	
+    	}
+    	else {
+    		if(head.x== wallXc&&head.y==wallYc) {
+            	death();
             }
     	}
     }
