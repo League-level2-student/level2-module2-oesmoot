@@ -69,12 +69,13 @@ public class LeagueSnake extends PApplet {
     	
     }
     void makeWalls() {
-    	wallXa = ((int)random(50)*10);
-    	wallXb = ((int)random(50)*10);
-    	wallXc = ((int)random(50)*10);
-    	wallYa = ((int)random(50)*10);
-    	wallYb = ((int)random(50)*10);
-    	wallYc = ((int)random(50)*10);
+    	walls.add(new Wall());
+    	walls.add(new Wall());
+    	walls.add(new Wall());
+    	walls.add(new Wall());
+    	walls.add(new Wall());
+    	walls.add(new Wall());
+    	walls.add(new Wall());
     	walls.add(new Wall());
     	walls.add(new Wall());
     	walls.add(new Wall());
@@ -266,9 +267,8 @@ public class LeagueSnake extends PApplet {
             }
             if(isWalls) {
             	drawWalls();
-            	checkWallCollisionA();
-            	checkWallCollisionB();
-            	checkWallCollisionC();
+            	
+            	checkWallCollision();
             }
     	}
     }
@@ -284,9 +284,6 @@ public class LeagueSnake extends PApplet {
     	for(Wall w:walls) {
     		rect(w.x,w.y,10,10);
     	}
-    	rect(wallXa,wallYa,10,10);
-    	rect(wallXb,wallYb,10,10);
-    	rect(wallXc,wallYc,10,10);
     }
 
     void drawSnake() {
@@ -515,52 +512,23 @@ public class LeagueSnake extends PApplet {
             }
     	}
     }
-    void checkWallCollisionA() {
-    	if(isBig) {
-    		if(head.x== wallXa&&head.y==wallYa
-    				||head.x == (wallXa-10)&&head.y == wallYa
-    				||head.x == (wallXa-10)&&head.y == (wallYa-10)
-    				||head.x == wallXa&&head.y==(wallYa-10)) {
-            		death();
-            }
-    	
-    	}
-    	else {
-    		if(head.x== wallXa&&head.y==wallYa) {
-            	death();
-            }
-    	}
-    }
-    void checkWallCollisionB() {
-    	if(isBig) {
-    		if(head.x== wallXb&&head.y==wallYb
-    				||head.x == (wallXb-10)&&head.y == wallYb
-    				||head.x == (wallXb-10)&&head.y == (wallYb-10)
-    				||head.x == wallXb&&head.y==(wallYb-10)) {
-            		death();
-            }
-    	
-    	}
-    	else {
-    		if(head.x== wallXb&&head.y==wallYb) {
-            	death();
-            }
-    	}
-    }
-    void checkWallCollisionC() {
-    	if(isBig) {
-    		if(head.x== wallXc&&head.y==wallYc
-    				||head.x == (wallXc-10)&&head.y == wallYc
-    				||head.x == (wallXc-10)&&head.y == (wallYc-10)
-    				||head.x == wallXc&&head.y==(wallYc-10)) {
-            		death();
-            }
-    	
-    	}
-    	else {
-    		if(head.x== wallXc&&head.y==wallYc) {
-            	death();
-            }
+    void checkWallCollision() {
+    	for(Wall w: walls) {
+    		if(isBig) {
+        		if(head.x== w.x&&head.y==w.y
+        				||head.x == (w.x-10)&&head.y == w.y
+        				||head.x == (w.x-10)&&head.y == (w.y-10)
+        				||head.x == w.x&&head.y==(w.y-10)) {
+                		death();
+                }
+        	
+        	}
+    		else {
+        		if(head.x== w.x&&head.y==w.y) {
+                	death();
+                }
+        	}
+
     	}
     }
 
